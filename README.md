@@ -1,7 +1,7 @@
 # anabfem (Finite element analysis of annular ablation experiments)
 ### Alejandro Torres-Sanchez (The Francis Crick Institute)
 
-![ScreenShot](doc/example.png?raw=true | width=50)
+![ScreenShot](doc/example.png?raw=true =580x441)
 
 This small python project provides tools for the analysis of annular ablation experiments using a finite element approach.
 
