@@ -67,5 +67,5 @@ ax = fig.add_subplot(111)
 fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
 plt.show()
 ```
-## Author and ackowledgement
-This code has been produced by Alejandro Torres-Sanchez at the Francis Crick Institute
+## Author
+Alejandro Torres-Sanchez (Francis Crick Institute)
