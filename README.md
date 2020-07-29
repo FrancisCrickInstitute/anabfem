@@ -1,4 +1,4 @@
-# anabfem
+# Anabfem
 ### Alejandro Torres-Sanchez (The Francis Crick Institute)
 
 ![ScreenShot](doc/example.png?raw=true)
@@ -26,11 +26,19 @@ pip install .
 
 ## Usage
 
+Finite element solution given a set of parameters:
 ```python
-import foobar
+from anabfem.fem import FEM2DActiveElastic
+fem = FEM2DActiveElastic("circle_0.vtk", lintrans=np.array([[50.0, 0.0],[0.0, 50.0]]))
+fem.parameters = [0.1, 0.6, -0.6, 0.1]
+fem.update_mesh_displacements(True, True)
+fem.save_vtk("solution.vtk") # Save in vtk format and open in Paraview
 
-foobar.pluralize('word') # returns 'words'
-foobar.pluralize('goose') # returns 'geese'
-foobar.singularize('phenomena') # returns 'phenomenon'
+import matplotlib.pyplot as plt
+fig = plt.figure(figsize=(3,3))
+ax = fig.add_subplot(111)
+fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
+plt.show()
+
 ```
 
