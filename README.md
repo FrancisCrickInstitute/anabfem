@@ -44,9 +44,29 @@ fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
 plt.show()
 
 ```
-1. Optimise parameters given an experimental data set
+2. Optimise parameters given an experimental data set
 ```python
+from anabfem.fem import FEM2DActiveElastic
+from anabfem.optimization import ParameterOptimizer
+expfiles = ["data_16hAPF.csv", "data_21hAPF.csv", "data_26hAPF.csv","data_31hAPF.csv"]
 
+fem = FEM2DActiveElastic("circle_0.vtk", lintrans=np.array([[45.54/2.0, 0.0],[0.0, 45.54/2.0]]))
+
+opt = ParameterOptimizer(fem, expfiles, kdisp=1.0/(45.54*45.54), kshear=1.0, kstretch=1.0)
+opt.parameters = np.array([ 3.6651338743344142e-02,  3.4416483373974804e-01,  3.9598881253401425e-01,
+  3.1549244529775110e-02,  3.2515831957694152e-01,  2.7603108245392211e-01,
+  9.1302426300089532e-03,  1.2222134424818480e-01,  6.8860193147434345e-01,
+  3.7447641907539177e-03, -7.9378001681324278e-02,  6.4175591987936942e-01,
+  3.2286999799468258e-01])
+
+opt.optimize()
+print(opt.parameters)
+
+import matplotlib.pyplot as plt
+fig = plt.figure(figsize=(3,3))
+ax = fig.add_subplot(111)
+fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
+plt.show()
 ```
 
 
