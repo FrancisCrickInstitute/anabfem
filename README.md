@@ -28,12 +28,15 @@ pip install .
 
 Finite element solution given a set of parameters:
 ```python
+
+# Compute FEM solution
 from anabfem.fem import FEM2DActiveElastic
 fem = FEM2DActiveElastic("circle_0.vtk", lintrans=np.array([[50.0, 0.0],[0.0, 50.0]]))
-fem.parameters = [0.1, 0.6, -0.6, 0.1]
-fem.update_mesh_displacements(True, True)
-fem.save_vtk("solution.vtk") # Save in vtk format and open in Paraview
+fem.parameters = [0.1, 0.6, -0.6, 0.1] # [k, \zeta_x, \zeta_y, \bar{K}]/K
+fem.update_mesh_displacements(True, True) #Compute displacement (and stretch and shear)
+fem.save_vtk("solution.vtk") # Save in vtk format (to open in Paraview, for instance)
 
+# Plot it with matplotlib
 import matplotlib.pyplot as plt
 fig = plt.figure(figsize=(3,3))
 ax = fig.add_subplot(111)
