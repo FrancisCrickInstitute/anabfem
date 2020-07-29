@@ -3,6 +3,7 @@
 
 ![ScreenShot](doc/example.png?raw=true)
 
+## Summary
 This small python project provides tools for the **analysis of annular ablation experiments using a finite element approach**.
 
 It contains the packages:
@@ -16,4 +17,20 @@ active, linear elastic solid. Model parameters (bulk modulus, active tensions an
 data must be provided in a csv file and may contain data regarding tissue displacements (such as cell centre 
 displacements, or vertex displacements if the tissue has been triangulated), as well as tissue stretching and 
 orientation. 
+
+## Installation
+
+```bash
+pip install .
+```
+
+## Usage
+
+```python
+import foobar
+
+foobar.pluralize('word') # returns 'words'
+foobar.pluralize('goose') # returns 'geese'
+foobar.singularize('phenomena') # returns 'phenomenon'
+```
 
