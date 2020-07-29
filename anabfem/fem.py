@@ -25,7 +25,7 @@ import vtk
 from scipy.sparse import coo_matrix
 from scipy.sparse.linalg import factorized
 from vtk.util import numpy_support
-
+from matplotlib import pyplot as plt
 
 class FEM2DActiveElastic:
 
@@ -365,6 +365,138 @@ class FEM2DActiveElastic:
         self.rhs_zx = rhs1
         self.rhs_zy = rhs2
 
+    def interpolate_data(self, points, disp, stretch=None, shear=None, on_deformed=True, kernel_radius=3.0,
+                         kernel_sharpness=1.0, remove_null=True, return_deformed=True):
+
+        """
+        Interpolate data on the mesh. This can be used for comparing experimental and simulation data together.
+        on_deform selects whether to interpolate the data on the original or on the deformed configuration
+        """
+
+        if stretch is None:
+            stretch = np.array([])
+
+        if shear is None:
+            shear = np.array([])
+
+        # We need nPts*3 data for vtk
+        points_ = points
+        if points.shape[1] == 2:
+            points_ = np.zeros([points.shape[0], 3])
+
+        # Deform data if needed
+        if on_deformed:
+            points_[:,0:2] = points + disp
+
+        # Generate vtk points structure with all data
+        vtkpoints = vtk.vtkPoints()
+        vtkpoints.SetData(numpy_support.numpy_to_vtk(points_))
+
+        vtkdisp = vtk.vtkDoubleArray()
+        vtkdisp.SetName("disp")
+        vtkdisp.SetNumberOfComponents(disp.shape[1])
+        vtkdisp.SetNumberOfTuples(disp.shape[0])
+        vtkdisp.SetVoidArray(disp.flatten(), disp.size, 1)
+
+        vtkstretch = vtk.vtkDoubleArray()
+        vtkstretch.SetName("stretch")
+        vtkstretch.SetNumberOfComponents(1)
+        vtkstretch.SetNumberOfTuples(stretch.size)
+        vtkstretch.SetVoidArray(stretch, stretch.size, 1)
+
+        shear = shear.reshape([-1, 4])
+        vtkshear = vtk.vtkDoubleArray()
+        vtkshear.SetName("shear")
+        vtkshear.SetNumberOfComponents(shear.shape[1])
+        vtkshear.SetNumberOfTuples(shear.shape[0])
+        vtkshear.SetVoidArray(shear, shear.size, 1)
+
+        vtkpointset = vtk.vtkPolyData()
+        vtkpointset.SetPoints(vtkpoints)
+        vtkpointset.GetPointData().AddArray(vtkdisp)
+        vtkpointset.GetPointData().AddArray(vtkstretch)
+        vtkpointset.GetPointData().AddArray(vtkshear)
+
+        # Build the locator for the interpolation
+        locator = vtk.vtkStaticPointLocator()
+        locator.SetDataSet(vtkpointset)
+        locator.BuildLocator()
+
+        # Build the Gaussian kernel
+        kernel = vtk.vtkGaussianKernel()
+        kernel.SetKernelFootprint(0)
+        kernel.SetRadius(kernel_radius)
+        kernel.SetSharpness(kernel_sharpness)
+
+        # If the interpolation is performed on the deformed configuration, warp the data
+        if on_deformed:
+            disp_ = np.zeros(self.x_nodes.shape)
+            disp_[:,0:2] = self.disp
+
+            warpData = vtk.vtkDoubleArray()
+            warpData.SetName("warp")
+            warpData.SetNumberOfComponents(3)
+            warpData.SetNumberOfTuples(self.x_nodes.shape[0])
+            warpData.SetVoidArray(disp_, self.x_nodes.shape[0], 1)
+
+            self.vtkmesh.GetPointData().AddArray(warpData)
+            self.vtkmesh.GetPointData().SetActiveVectors(warpData.GetName())
+
+            warpVector = vtk.vtkWarpVector()
+            warpVector.SetInputData(self.vtkmesh)
+            warpVector.Update()
+
+            self.vtkmesh = warpVector.GetOutput()
+
+        coarseInterpolator = vtk.vtkPointInterpolator()
+        coarseInterpolator.SetSourceData(vtkpointset)
+        coarseInterpolator.SetInputData(self.vtkmesh)
+        coarseInterpolator.SetKernel(kernel)
+        coarseInterpolator.SetLocator(locator)
+        coarseInterpolator.PassPointArraysOff()
+        coarseInterpolator.SetNullPointsStrategyToMaskPoints() # Get points with an invalid interpolation
+        coarseInterpolator.Update()
+
+        vtkmesh = coarseInterpolator.GetOutput()
+
+        if return_deformed:
+            self.x_nodes[:,0:2] += self.disp
+
+        self.disp = numpy_support.vtk_to_numpy(vtkmesh.GetPointData().GetArray("disp"))
+        self.stretch = numpy_support.vtk_to_numpy(vtkmesh.GetPointData().GetArray("stretch"))
+        self.shear = numpy_support.vtk_to_numpy(vtkmesh.GetPointData().GetArray("shear"))
+
+        if remove_null:
+            not_null = (numpy_support.vtk_to_numpy(vtkmesh.GetPointData().GetArray(
+                coarseInterpolator.GetValidPointsMaskArrayName()))).astype(bool)
+
+            idlist_old = np.arange(self.x_nodes.shape[0])[not_null]
+
+            self.x_nodes = self.x_nodes[not_null]
+            self.disp = self.disp[not_null]
+            self.stretch = self.stretch[not_null]
+            self.shear = self.shear[not_null]
+
+            idlist_new = np.arange(self.x_nodes.shape[0])
+
+            c1 = np.in1d(self.connec[:, 0], idlist_old)
+            c2 = np.in1d(self.connec[:, 1], idlist_old)
+            c3 = np.in1d(self.connec[:, 2], idlist_old)
+            self.connec = self.connec[np.logical_and(np.logical_and(c1,c2),c3)]
+
+            for i in idlist_new:
+                self.connec[self.connec == idlist_old[i]] = i
+
+            points = vtk.vtkPoints()
+            points.SetData(numpy_support.numpy_to_vtk(self.x_nodes))
+            vtkmesh.SetPoints(points)
+
+            cells = vtk.vtkCellArray()
+            cells.SetCells(self.connec.shape[0], numpy_support.numpy_to_vtkIdTypeArray(self.connec))
+            vtkmesh.SetPolys(cells)
+
+        self.shear = self.shear.reshape([-1, 2, 2])
+
     def load_vtk(self):
 
         """
@@ -432,3 +564,46 @@ class FEM2DActiveElastic:
         vtkwriter.SetFileName(filename)
         vtkwriter.SetInputData(self.vtkmesh)
         vtkwriter.Update()
+
+    def plot(self, deformed=True, show_mesh=False, mesh_params=None, show_stretch=False, stretch_params=None,
+             show_shear=False, shear_params=None):
+        '''
+        Add plot to matplotlib axis
+        '''
+
+        ax = plt.gca()
+
+        if mesh_params is None:
+            mesh_params = {"c": "gray", "linewidth": 1, "zorder": 1}
+
+        if stretch_params is None:
+            stretch_params = {"levels": 100, "zorder": 0}
+
+        if shear_params is None:
+            shear_params = {"headaxislength": 0, "headlength": 0, "pivot": "middle", "width": 0.01, "zorder": 2,
+                            "scale": 10.0}
+
+
+        x = np.copy(self.x_nodes)
+
+        if deformed:
+            x[:,0:2] += self.disp
+
+        if show_mesh:
+            im = ax.triplot(x[:,0], x[:,1], self.connec, **mesh_params)
+
+        if show_stretch:
+            im = ax.tricontourf(x[:, 0], x[:, 1], self.connec, self.stretch, **stretch_params)
+            ax.tricontour(x[:, 0], x[:, 1], self.connec, self.stretch, **stretch_params, linewidths=0.3)
+
+        if show_shear:
+            S = 2.0 * np.sqrt(self.shear[:, 0, 0]**2 + self.shear[:, 0, 1]**2)
+            nx = np.sqrt(self.shear[:, 0, 0] / S + 0.5)
+            ny = self.shear[:, 0, 1]/(S * nx)
+
+            nx *= S
+            ny *= S
+
+            ax.quiver(x[:,0], x[:,1], nx, ny, **shear_params)
+
+        return im

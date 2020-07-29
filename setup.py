@@ -15,7 +15,7 @@ setup(
     author='Alejandro Torres-Sanchez',
     author_email='torres.sanchez.a@gmail.com',
     python_requires='>=3.5, <4',
-    install_requires=['vtk', 'numpy', 'scipy'],
+    install_requires=['vtk', 'numpy', 'scipy', 'matplotlib'],
     packages=['anabfem'],
     package_dir={'anabfem': 'anabfem'},
     package_data={'anabfem': ['meshes/*.vtk']}
