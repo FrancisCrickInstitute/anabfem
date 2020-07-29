@@ -26,7 +26,7 @@ pip install .
 
 ## Usage
 
-Finite element solution given a set of parameters:
+1. Finite element solution given a set of parameters:
 ```python
 
 # Compute FEM solution
@@ -44,4 +44,10 @@ fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
 plt.show()
 
 ```
+
+1. Optimise parameters given an experimental data set
+```python
+
+```
+
 
