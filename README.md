@@ -48,20 +48,27 @@ plt.show()
 ```python
 from anabfem.fem import FEM2DActiveElastic
 from anabfem.optimization import ParameterOptimizer
-expfiles = ["data_16hAPF.csv", "data_21hAPF.csv", "data_26hAPF.csv","data_31hAPF.csv"]
 
-fem = FEM2DActiveElastic("circle_0.vtk", lintrans=np.array([[45.54/2.0, 0.0],[0.0, 45.54/2.0]]))
+# Data fileds
+expfiles = ["data.csv"]
 
-opt = ParameterOptimizer(fem, expfiles, kdisp=1.0/(45.54*45.54), kshear=1.0, kstretch=1.0)
-opt.parameters = np.array([ 3.6651338743344142e-02,  3.4416483373974804e-01,  3.9598881253401425e-01,
-  3.1549244529775110e-02,  3.2515831957694152e-01,  2.7603108245392211e-01,
-  9.1302426300089532e-03,  1.2222134424818480e-01,  6.8860193147434345e-01,
-  3.7447641907539177e-03, -7.9378001681324278e-02,  6.4175591987936942e-01,
-  3.2286999799468258e-01])
+# Initialise the fem object
+fem = FEM2DActiveElastic("circle_0.vtk", lintrans=np.array([[25.0, 0.0],[0.0, 25.0]]))
 
+# Initialise the optimiser
+opt = ParameterOptimizer(fem, expfiles, kdisp=1.0, kshear=1.0, kstretch=1.0)
+
+# Optimise
 opt.optimize()
+
+# Print the parameters
 print(opt.parameters)
 
+# Update the fem object with the best parameters
+fem.parameters = opt.parameters
+fem.update_mesh_displacements(True, True)
+
+#Plot it in matplotlib
 import matplotlib.pyplot as plt
 fig = plt.figure(figsize=(3,3))
 ax = fig.add_subplot(111)
