@@ -43,6 +43,8 @@ ax.set_ylim([-2.5,2.5])
 ax.set_aspect('equal')
 plt.show()
 ```
+![ScreenShot](doc/images/test1.png?raw=true)
+
 2. Optimise parameters given an experimental data set
 ```python
 from anabfem.fem import FEM2DActiveElastic
