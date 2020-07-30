@@ -3,18 +3,20 @@
 ![ScreenShot](doc/example.png?raw=true)
 
 ## Summary
-This small python project provides tools for the **analysis of annular ablation experiments using a finite element approach**.
+This small python project provides tools for the **finite element analysis of annular ablation experiments**. It includes the packages:
 
-It includes the packages:
-
-1. **fem**: containing the object **FEM2DActiveElastic**. This object uses a triangular mesh (either provided by the user or loaded from the set of meshes provided with the package) to calculate the tissue recoil after ablation assuming the tissue behaves as a 2D  active, linear elastic solid adhered to the substrate with elastic bonds. Model parameters (bulk modulus, active tensions and elastic constant for adhesion relative to the shear modulus) are provided by the user to compute the solution. The solution can be plotted with matplotlib with the plot method (see examples below). It can also be exported in a vtk format, which can be loaded in Paraview for visualisation and further manipulation. 
-2. **optimization**: containing the object **ParameterOptimizer**. This object uses FEM2DActiveElastic and user-provided data to fit the model parameters via the . The data must be provided in a csv file and may contain data regarding tissue displacements (such as cell centre  displacements, or vertex displacements if the tissue has been triangulated), as well as tissue stretching and orientation. The
+1. **fem**: containing the object `FEM2DActiveElastic`. This object uses a triangular mesh (either provided by the user or loaded from the set of meshes included in the package) to calculate the tissue recoil after ablation assuming the tissue behaves as a 2D active, linear elastic solid adhered to a substrate via elastic bonds. Model parameters (bulk modulus, active tensions and adhesion strength, all relative to the shear modulus) are provided by the user to compute the solution. The solution can be plotted with matplotlib with the plot method (see examples below). It can also be exported in a vtk format, which can be loaded in Paraview for visualisation and further manipulation. 
+2. **optimization**: containing the object `ParameterOptimizer`. This object uses `FEM2DActiveElastic` and user-provided data to fit the model parameters. The fit is performed via the `optimize()` function, which works as a wrapper for the `minimize()` function of Scipy with a target function that minimises differences between experiment data and fem simulations in a least-squares sense; all parameters accepted by Scipy minimize can be provided to `optimize`. Data is provided in a csv file and may contain tissue displacements (such as cell centre  displacements, or vertex displacements if the tissue has been triangulated), as well as tissue stretching and shear (if, for instance, one measures independently cell centre positions and their stretching and shear). The package also contains the `bootstrap()` method for a bootstrapping analysis of the best fitting parameters, which can be used for determining a confidence interval for them.
 
 ## Installation
 
+To install this package, download the package either by cloning it using git or by downloading a zipped version. In the terminar, go to the folder containing the poackage (you may need to unzip it if you downloaded the zipper version) and execute
+
 ```bash
-pip install .
+python -m pip install .
 ```
+
+This will automatically install the different dependencies (numpy, scipy, vtk) required by Anabfem.
 
 ## Usage
 
