@@ -83,6 +83,6 @@ fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
 plt.show()
 ```
 ## Author
-Alejandro Torres-Sanchez (Francis Crick Institute)
+[Alejandro Torres-Sánchez](https://torres-sanchez.xyz/) (Francis Crick Institute)
 
 ## License
