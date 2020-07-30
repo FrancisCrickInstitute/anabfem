@@ -1,5 +1,5 @@
 # Anabfem
-<p style="text-align: center;"> <img src="doc/images/example.png" width="480"> </p>
+<img src="doc/images/example.png" width="480" class="center">
 
 
 ## Summary
@@ -43,7 +43,8 @@ ax.set_ylim([-2.5,2.5])
 ax.set_aspect('equal')
 plt.show()
 ```
-![ScreenShot](doc/images/test1.png?raw=true)
+
+<img src="doc/images/test1.png" width="480" class="center">
 
 2. Optimise parameters given an experimental data set
 ```python
