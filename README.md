@@ -12,13 +12,13 @@ This small python project provides tools for the **finite element analysis of an
 
 ## Installation
 
-To install this package, download the package either by cloning it using git or by downloading a zipped version. In the terminar, go to the folder containing the poackage (you may need to unzip it if you downloaded the zipper version) and execute
+To install this package, download the package either by cloning it using git or by downloading a zipped version. In the terminal, go to the folder containing the package (you may need to unzip it if you downloaded the zipper version) and execute
 
 ```bash
 python -m pip install .
 ```
 
-This will automatically install the different dependencies (numpy, scipy, vtk) required by Anabfem.
+This will automatically install the different dependencies (numpy, scipy, matplotlib, vtk) required by Anabfem.
 
 ## Usage
 
