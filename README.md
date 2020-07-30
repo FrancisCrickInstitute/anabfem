@@ -46,7 +46,10 @@ ax.set_aspect('equal')
 plt.show()
 ```
 
-<img src="doc/images/test1.png" width="480" align="center">
+<p align="center">
+<img src="doc/images/test1.png" width="400">
+</p>
+
 
 2. Optimise parameters given an experimental data set
 ```python
