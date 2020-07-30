@@ -1,5 +1,7 @@
 # Anabfem
 
+<img src="doc/images/example.png" width="48">
+
 ![ScreenShot](doc/images/example.png?raw=true)
 
 ## Summary
