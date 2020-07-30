@@ -1,8 +1,6 @@
 # Anabfem
+<p style="text-align: center;"> <img src="doc/images/example.png" width="480"> </p>
 
-<img src="doc/images/example.png" width="48">
-
-![ScreenShot](doc/images/example.png?raw=true)
 
 ## Summary
 This small python project provides tools for the **finite element analysis of annular ablation experiments**. It includes the packages:
