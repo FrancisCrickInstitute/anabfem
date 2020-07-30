@@ -23,20 +23,25 @@ This will automatically install the different dependencies (numpy, scipy, vtk) r
 1. Finite element solution given a set of parameters:
 ```python
 
-# Compute FEM solution
 from anabfem.fem import FEM2DActiveElastic
-fem = FEM2DActiveElastic("circle_0.vtk", lintrans=np.array([[50.0, 0.0],[0.0, 50.0]]))
-fem.parameters = [0.1, 0.6, -0.6, 0.1] # [k, \zeta_x, \zeta_y, \bar{K}]/K
+import numpy as np
+
+# Initialise the object (lintrans transforms the initial circle to a circle os radius 2)
+fem = FEM2DActiveElastic("circle_0.vtk", lintrans=np.array([[2.0, 0.0],[0.0, 2.0]]))
+fem.parameters = [0.1, 0.4, -0.4, 1.0] # [k, \zeta_x, \zeta_y, \bar{K}]/K
+# Compute FEM solution
 fem.update_mesh_displacements(True, True) # Compute displacement (and stretch and shear)
 fem.save_vtk("solution.vtk") # Save in vtk format (to open in Paraview, for instance)
 
 # Plot it with matplotlib
 import matplotlib.pyplot as plt
-fig = plt.figure(figsize=(3,3))
+fig = plt.figure(figsize=(4,4))
 ax = fig.add_subplot(111)
 fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
+ax.set_xlim([-2.5,2.5])
+ax.set_ylim([-2.5,2.5])
+ax.set_aspect('equal')
 plt.show()
-
 ```
 2. Optimise parameters given an experimental data set
 ```python
