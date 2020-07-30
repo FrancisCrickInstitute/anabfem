@@ -51,7 +51,7 @@ plt.show()
 </p>
 
 
-2. Optimise parameters given an experimental data set
+2. Optimise parameters given an experimental dataset:
 ```python
 from anabfem.fem import FEM2DActiveElastic
 from anabfem.optimization import ParameterOptimizer
