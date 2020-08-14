@@ -82,7 +82,8 @@ ax = fig.add_subplot(111)
 fem.plot(deformed=True, show_mesh=False, show_stretch=True, show_shear=True)
 plt.show()
 ```
-## Author
-[Alejandro Torres-Sánchez](https://torres-sanchez.xyz/) (Francis Crick Institute)
+## Authors
+[Alejandro Torres-Sánchez](https://torres-sanchez.xyz/) and Guillaume Salbreux (The Francis Crick Institute)
 
-## License
+## Licence
+The code is provided under the non-commertial Crick licence. Please, take a look at the licence file.
