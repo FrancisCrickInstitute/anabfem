@@ -1,17 +1,13 @@
 Anabfem Licence Agreement
-
 ©2020, The Francis Crick Institute
 
 Anabfem: A small python project for the finite element analysis of annular ablation experiments.
 
 All files in this distribution are part of Anabfem.
 
-Anabfem is distributed under the terms of the CRICK Non-commercial Licence Agreement v 2.0.
-
-The CRICK Non-commercial Licence Agreement v 2.0. is a free of charge license that grants not-for-profit organisation (e.g., charities, universities, research institutes, hospitals) the right to use and/or modify Anabfem for educational, research or evaluation purposes only and prohibits any commercial use.
+Anabfem is distributed under the terms of the CRICK Non-commercial Licence Agreement v 2.0. The CRICK Non-commercial Licence Agreement v 2.0. is a free of charge license that grants not-for-profit organisation (e.g., charities, universities, research institutes, hospitals) the right to use and/or modify Anabfem for educational, research or evaluation purposes only and prohibits any commercial use.
 
 Commercial licenses are available from The Francis Crick Institute under a Commercial License Agreement. If you are interested in a commercial license, please contact: Translation@crick.ac.uk
-
 
 CRICK Non-commercial Licence Agreement v 2.0.
 
@@ -19,15 +15,10 @@ This Agreement is made by and between the Licensor and the Licensee as defined a
 
 1. Definitions
 In this Agreement (“the Agreement”) the following words shall have the following meanings:
-
 Authors shall mean Alejandro Torres-Sánchez and Guillaume Salbreux.
-
 Commencement Date shall be the date when the Software is made available to the Licensee.
-
 Licensee shall mean a Not-for-Profit Organisation (such as, but not restricted to, Universities, Research Institutes, Hospitals, Charities) wishing to take a licence to use the Software in accordance with these terms and conditions.
-
 Licensor shall mean The Francis Crick Institute Limited, a registered charity in England and Wales no. 1140062 and a company registered in England and Wales no.06885462) with its registered office at 1 Midland Road, London, NW1 1AT.
-
 Software shall mean Anabfem, as described in this Agreement, to which the Agreement applies.
 
 2. Licence
