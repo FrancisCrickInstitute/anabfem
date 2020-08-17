@@ -86,4 +86,4 @@ plt.show()
 [Alejandro Torres-Sánchez](https://torres-sanchez.xyz/) and Guillaume Salbreux (The Francis Crick Institute)
 
 ## Licence
-The code is provided under the non-commertial Crick licence. Please, take a look at the licence file.
+The code is provided under the Crick Non-commercial Licence Agreement v 2.0. Please, take a look at the licence file.
