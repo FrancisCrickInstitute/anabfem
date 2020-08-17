@@ -1,22 +1,13 @@
-# -----------------------------------------------------------------------------
-#     Anabfem
-#     Finite element analysis of annular ablation experiments
+# Anabfem: Finite element analysis of annular ablation experiments
 #
-#     Copyright (C) 2020 Alejandro Torres-Sanchez
+# Alejandro Torres-Sanchez, Guillaume Salbreux
 #
-#     This program is free software: you can redistribute it and/or modify
-#     it under the terms of the GNU General Public License as published by
-#     the Free Software Foundation, either version 3 of the License, or
-#     (at your option) any later version.
+# Copyright (C) 2020, The Francis Crick Institute
 #
-#     This program is distributed in the hope that it will be useful,
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#     GNU General Public License for more details.
-#
-#     You should have received a copy of the GNU General Public License
-#     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-# -------------------------------------------------------------------------------
+# Anabfem is distributed under the terms of the CRICK Non-commercial Licence Agreement v 2.0.
+# The CRICK Non-commercial Licence Agreement v 2.0. is a free of charge license that grants not-for-profit organisation
+# (e.g., charities, universities, research institutes, hospitals) the right to use and/or modify Anabfem for
+# educational, research or evaluation purposes only and prohibits any commercial use.
 
 import numpy as np
 from scipy.optimize import minimize
@@ -107,7 +98,7 @@ class ParameterOptimizer:
                 self.qxy.append(expdata[:, 9] - expdata[:, 8])
 
 
-    def target_func(self, parameters, return_residuals=False):
+    def __target_func__(self, parameters, return_residuals=False):
 
         """
         Function to minimise (least square error in displacements, stretch and shear)
@@ -191,13 +182,13 @@ class ParameterOptimizer:
         """
         Parameter optimisation
 
-        This method provides an envelop for the minimize function in scipy.
+        This method provides an envelop for the minimize function in Scipy.
         """
 
         if options is None:
             options = {'ftol': 1.E-14, 'gtol': 1E-14, 'maxiter': 5000, 'iprint': 50}
 
-        res = minimize(self.target_func, self.parameters, jac=True, method=method, options=options)
+        res = minimize(self.__target_func__, self.parameters, jac=True, method=method, options=options)
 
         if print_results:
             print(res)
@@ -227,7 +218,7 @@ class ParameterOptimizer:
         self.optimize()
 
         energy, gradient, pred_u, pred_stretch, pred_qxx, pred_qxy, \
-            res_u, res_stretch, res_qxx, res_qxy = self.target_func( self.parameters, return_residuals=True)
+            res_u, res_stretch, res_qxx, res_qxy = self.__target_func__( self.parameters, return_residuals=True)
 
         # Do the bootstrapping analysis
         param_list = []

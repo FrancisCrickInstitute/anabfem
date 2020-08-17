@@ -11,7 +11,7 @@ setup(
     version='0.0.1',
     description='Finite element analysis for annular ablation experiments',
     long_description_content_type='text/markdown',
-    url='https://github.com/pypa/sampleproject',  # FIXME: change this!
+    url='https://github.com/FrancisCrickInstitute/anabfem',
     author='Alejandro Torres-Sanchez',
     author_email='torres.sanchez.a@gmail.com',
     python_requires='>=3.5, <4',

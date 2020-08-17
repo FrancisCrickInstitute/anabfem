@@ -1,22 +1,13 @@
-# -----------------------------------------------------------------------------
-#     Anabfem
-#     Finite element analysis of annular ablation experiments
+# Anabfem: Finite element analysis of annular ablation experiments
 #
-#     Copyright (C) 2020 Alejandro Torres-Sanchez
+# Alejandro Torres-Sanchez, Guillaume Salbreux
 #
-#     This program is free software: you can redistribute it and/or modify
-#     it under the terms of the GNU General Public License as published by
-#     the Free Software Foundation, either version 3 of the License, or
-#     (at your option) any later version.
+# Copyright (C) 2020, The Francis Crick Institute
 #
-#     This program is distributed in the hope that it will be useful,
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#     GNU General Public License for more details.
-#
-#     You should have received a copy of the GNU General Public License
-#     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-# -------------------------------------------------------------------------------
+# Anabfem is distributed under the terms of the CRICK Non-commercial Licence Agreement v 2.0.
+# The CRICK Non-commercial Licence Agreement v 2.0. is a free of charge license that grants not-for-profit organisation
+# (e.g., charities, universities, research institutes, hospitals) the right to use and/or modify Anabfem for
+# educational, research or evaluation purposes only and prohibits any commercial use.
 
 import pkg_resources
 import os
@@ -37,9 +28,14 @@ class FEM2DActiveElastic:
 
     It depends on parameters [k, zeta_x, zeta_y, bar{K}] / K (parameters are re-normalised by shear modulus)
 
-    This class also provides a method (compute_point_displacement) for the interpolation of the finite element solution
+    The method compute_point_displacement can be used for the interpolation of the finite element solution
     in a cloud of points, which can also return gradient of point displacements with respect to material parameters.
     It can also return stretching and shear fields at those points (as well as their gradients wrt material parameters)
+
+    The method interpolate_data can be employed to translate experimental data to the finite element mesh for
+    comparison. This method employs radial basis functions with a Gaussian weight
+
+    The plot method can be used for plotting results with matplotlib
     """
 
     def __init__(self, filemesh='circle_0.vtk', internal_mesh=True, lintrans=np.array([[1.0,0.0],[0.0,1.0]])):
@@ -380,9 +376,10 @@ class FEM2DActiveElastic:
             shear = np.array([])
 
         # We need nPts*3 data for vtk
-        points_ = points
         if points.shape[1] == 2:
             points_ = np.zeros([points.shape[0], 3])
+
+        points_[:,0:2] = points
 
         # Deform data if needed
         if on_deformed:
@@ -565,16 +562,19 @@ class FEM2DActiveElastic:
         vtkwriter.SetInputData(self.vtkmesh)
         vtkwriter.Update()
 
-    def plot(self, deformed=True, show_mesh=False, mesh_params=None, show_stretch=False, stretch_params=None,
+    def plot(self, deformed=True, show_mesh=False, mesh_params=None, show_deformation=False, deformation_params=None, show_stretch=False, stretch_params=None,
              show_shear=False, shear_params=None):
-        '''
+        """
         Add plot to matplotlib axis
-        '''
+        """
 
         ax = plt.gca()
 
         if mesh_params is None:
             mesh_params = {"c": "gray", "linewidth": 1, "zorder": 1}
+
+        if deformation_params is None:
+            deformation_params = { "width": 0.01, "zorder": 2, "scale": 100.0, 'zorder': 3}
 
         if stretch_params is None:
             stretch_params = {"levels": 100, "zorder": 0}
@@ -592,12 +592,17 @@ class FEM2DActiveElastic:
         if show_mesh:
             im = ax.triplot(x[:,0], x[:,1], self.connec, **mesh_params)
 
+        if show_deformation:
+            ax.quiver(x[:,0], x[:,1], self.disp[:,0], self.disp[:,1], **deformation_params)
+
         if show_stretch:
             im = ax.tricontourf(x[:, 0], x[:, 1], self.connec, self.stretch, **stretch_params)
             ax.tricontour(x[:, 0], x[:, 1], self.connec, self.stretch, **stretch_params, linewidths=0.3)
 
         if show_shear:
             S = 2.0 * np.sqrt(self.shear[:, 0, 0]**2 + self.shear[:, 0, 1]**2)
+
+            print(np.max(S))
             nx = np.sqrt(self.shear[:, 0, 0] / S + 0.5)
             ny = self.shear[:, 0, 1]/(S * nx)
 
