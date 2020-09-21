@@ -83,6 +83,33 @@ class FEM2DActiveElastic:
         self.stretch = np.array([])
         self.shear = np.array([])
 
+    def set_constraint(self, id_cons):
+
+        for c in np.arange(self.mat_K.indptr.size-1):
+
+            i = self.mat_K.indptr[c]
+            j = self.mat_K.indptr[c+1]
+
+            for k in np.arange(i, j):
+                r = self.mat_K.indices[k]
+
+                if r == c and id_cons[r//2]:
+                    self.mat_K.data[k] = 1.0
+                    self.mat_bK.data[k] = 1.0
+                    self.mat_k.data[k] = 1.0
+                elif id_cons[r//2] or id_cons[c//2]:
+                    self.mat_K.data[k] = 0.0
+                    self.mat_bK.data[k] = 0.0
+                    self.mat_k.data[k] = 0.0
+
+        idx = np.arange(self.x_nodes.shape[0])[id_cons]
+        self.rhs_zx[2*idx]   = 0
+        self.rhs_zx[2*idx+1] = 0
+        self.rhs_zy[2*idx]   = 0
+        self.rhs_zy[2*idx+1] = 0
+
+
+
     def update_mesh_displacements(self, compute_shear_and_stretch=False, compute_parameter_gradients=False):
 
         """
@@ -98,7 +125,7 @@ class FEM2DActiveElastic:
         # [1] SOLVE THE PROBLEM USING FEM
 
         # Compute total matrix
-        mat = mat1 + self.parameters[3] * mat2 + self.parameters[0] * mat3
+        mat = self.parameters[3] * mat1 + mat2 + self.parameters[0] * mat3
 
         # Factorise matrix
         solve = factorized(mat)
@@ -108,7 +135,7 @@ class FEM2DActiveElastic:
 
         # In case return_paramgrad, compute gradients of the solution wrt parameters
         if compute_parameter_gradients:
-            self.dbK_disp = solve(-self.mat_bK * self.disp)
+            self.dbK_disp = solve(-self.mat_K * self.disp)
             self.dk_disp = solve(-self.mat_k * self.disp)
             self.dsx_disp = solve(self.rhs_zx)
             self.dsy_disp = solve(self.rhs_zy)
