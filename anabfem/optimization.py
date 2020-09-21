@@ -21,7 +21,7 @@ class ParameterOptimizer:
     """
 
     def __init__(self, fem, csvfiles, csv_delim=";", skiprows=1, kdisp=1.0, kstretch=0.0, kshear=0.0, stretch_shear=True,
-                 shared_param=np.array([False, False, False, True], dtype=bool)):
+                 map2params=None):
         """
         Initialise the optimiser. This requires passing a FEM2DActiveElastic object and the files where experimental
         values are stored.
@@ -44,25 +44,16 @@ class ParameterOptimizer:
         self.fem = fem
 
         self.params_per_file = 4
-        self.shared_param = shared_param
-        self.n_shared = shared_param.sum()
-        self.n_notshared = self.params_per_file - self.n_shared
 
-        # Map to build parameters for each file taking into account shared and not shared parameters among files
-        self.map2params = np.zeros([len(csvfiles),4], dtype=int)
-        for n in np.arange(len(csvfiles)):
-            p_s = 0
-            p_n = 0
-            for p in np.arange(self.params_per_file):
-                if self.shared_param[p]:
-                    self.map2params[n,p] = -p_n-1
-                    p_n += 1
-                else:
-                    self.map2params[n,p] = n * self.n_notshared + p_s
-                    p_s += 1
+        if map2params is None:
+            self.map2params = np.arange(len(csvfiles)*self.params_per_file)
+        else:
+            self.map2params = map2params
 
-        # 3 parameters per file (k, \zeta_x, \zeta_y) and a global parameter \bar{K}
-        self.parameters = np.ones([self.n_notshared * len(csvfiles) + self.n_shared])
+        # Number of independent parameters
+        ndiff = np.unique(self.map2params).size
+
+        self.parameters = np.ones([ndiff])
 
         self.stretch_shear = stretch_shear
 
@@ -70,11 +61,11 @@ class ParameterOptimizer:
         self.kstretch = kstretch
         self.kshear = kshear
 
-        if self.kstretch != 0 and (not self.stretch_shear):
+        if self.kstretch[0] != 0 and (not self.stretch_shear):
             print("ParameterOptimizer: Warning! Boolean flag stretch_shear is false but kstretch is not 0 "
                   "(kstretch = {0:.2e}".format(self.kstretch))
 
-        if self.kshear != 0 and (not self.stretch_shear):
+        if self.kshear[0] != 0 and (not self.stretch_shear):
             print("ParameterOptimizer: Warning! Boolean flag stretch_shear is false but kshear is not 0 "
                   "(kshear = {0:.2e}".format(kshear))
 
@@ -96,7 +87,6 @@ class ParameterOptimizer:
                 self.stretch.append((expdata[:, 5] - expdata[:, 4]) / expdata[:, 4])
                 self.qxx.append(expdata[:, 7] - expdata[:, 6])
                 self.qxy.append(expdata[:, 9] - expdata[:, 8])
-
 
     def __target_func__(self, parameters, return_residuals=False):
 
@@ -152,23 +142,23 @@ class ParameterOptimizer:
             res_u_ = res_u_.flatten()
 
             # Compute target function
-            func += 0.5 * (self.kdisp * res_u_.dot(res_u_) + self.kstretch * res_str_.dot(res_str_)
-                           + self.kshear * (res_qxx_.dot(res_qxx_) + res_qxy_.dot(res_qxy_)))
+            func += 0.5 * (self.kdisp[n] * res_u_.dot(res_u_) + self.kstretch[n] * res_str_.dot(res_str_)
+                           + self.kshear[n] * (res_qxx_.dot(res_qxx_) + res_qxy_.dot(res_qxy_)))
 
             # Compute gradients
-            gradient[self.map2params[n]] -= self.kdisp * np.array(
+            gradient[self.map2params[n]] -= self.kdisp[n] * np.array(
                 [res_u_.dot(dk_displ.flatten()), res_u_.dot(dsx_displ.flatten()),
                  res_u_.dot(dsy_displ.flatten()), res_u_.dot(dbK_displ.flatten())])
 
-            gradient[self.map2params[n]] -= self.kstretch * np.array(
+            gradient[self.map2params[n]] -= self.kstretch[n] * np.array(
                 [res_str_.dot(dk_dilatation.flatten()), res_str_.dot(dsx_dilatation.flatten()),
                  res_str_.dot(dsy_dilatation.flatten()), res_str_.dot(dbK_dilatation.flatten())])
 
-            gradient[self.map2params[n]] -= self.kshear * np.array(
+            gradient[self.map2params[n]] -= self.kshear[n] * np.array(
                 [res_qxx_.dot(dk_shear[:, 0, 0].flatten()), res_qxx_.dot(dsx_shear[:, 0, 0].flatten()),
                  res_qxx_.dot(dsy_shear[:, 0, 0].flatten()), res_qxx_.dot(dbK_shear[:, 0, 0].flatten())])
 
-            gradient[self.map2params[n]] -= self.kshear * np.array(
+            gradient[self.map2params[n]] -= self.kshear[n] * np.array(
                 [res_qxy_.dot(dk_shear[:, 0, 1].flatten()), res_qxy_.dot(dsx_shear[:, 0, 1].flatten()),
                  res_qxy_.dot(dsy_shear[:, 0, 1].flatten()), res_qxy_.dot(dbK_shear[:, 0, 1].flatten())])
 
@@ -177,7 +167,7 @@ class ParameterOptimizer:
         else:
             return func, gradient
 
-    def optimize(self, method='L-BFGS-B', options=None, print_results=True):
+    def optimize(self, method='L-BFGS-B', options=None, print_results=True, bounds=None):
 
         """
         Parameter optimisation
@@ -188,7 +178,7 @@ class ParameterOptimizer:
         if options is None:
             options = {'ftol': 1.E-14, 'gtol': 1E-14, 'maxiter': 5000, 'iprint': 50}
 
-        res = minimize(self.__target_func__, self.parameters, jac=True, method=method, options=options)
+        res = minimize(self.__target_func__, self.parameters, jac=True, method=method, bounds=bounds,options=options)
 
         if print_results:
             print(res)
