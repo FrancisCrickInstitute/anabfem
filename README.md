@@ -1,7 +1,7 @@
 # Anabfem
 
 <p align="center">
-<img src="doc/images/example.png" width="480">
+<img src="doc/images/example.png" width="240">
 </p>
 
 ## Summary
